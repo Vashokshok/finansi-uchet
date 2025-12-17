@@ -7,6 +7,7 @@ cur = conn.cursor()
 
 cur.execute(''' 
 CREATE TABLE IF NOT EXISTS finans(
+            user_id INTEGER,
             id INTEGER PRIMARY KEY,
             date INTEGER,
             nazvanie TEXT,

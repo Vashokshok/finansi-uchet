@@ -1,16 +1,23 @@
 import logging
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject
+from aiogram.types import Message, CallbackQuery
 from typing import Dict, Any, Awaitable, Callable
 
-class LoggingfInfoMiddleware(BaseMiddleware):
-    async def __call__(self,
-                       handler: Callable[[TelegramObject, Dict[Any, str]], Awaitable[Any]],
-                       event: TelegramObject,
-                       data: Dict[Any, str]
-                    ) -> Any:
+logger = logging.getLogger(__name__)
 
-        result = await handler(event, data)
-        return result
+class LoggingInfoMiddleware(BaseMiddleware):
+    async def __call__(
+        self,
+        handler: Callable[[Message | CallbackQuery, Dict[str, Any]], Awaitable[Any]],
+        event: Message | CallbackQuery,
+        data: Dict[str, Any]
+    ) -> Any:
         
-    
+        if isinstance(event, Message) and event.from_user:
+            user_id = event.from_user.id
+            logger.info(f"User {user_id} отправил сообщение: {event.text}")
+        elif isinstance(event, CallbackQuery) and event.from_user:
+            user_id = event.from_user.id
+            logger.info(f"User {user_id} нажал кнопку: {event.data}")
+
+        return await handler(event, data)
